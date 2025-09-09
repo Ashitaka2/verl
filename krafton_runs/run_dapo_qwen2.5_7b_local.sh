@@ -67,8 +67,8 @@ val_temperature=0.6
 # Performance-related (recipe)
 sp_size=1
 use_dynamic_bsz=True
-actor_ppo_max_token_len=$((max_prompt_length + max_response_length))
-infer_ppo_max_token_len=$((max_prompt_length + max_response_length))
+actor_ppo_max_token_len=$(2 * (max_prompt_length + max_response_length))
+infer_ppo_max_token_len=$(2 * (max_prompt_length + max_response_length))
 offload=True
 
 
