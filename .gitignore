@@ -1,4 +1,3 @@
-
 **/*.pt
 **/checkpoints
 **/wget-log
@@ -8,6 +7,8 @@
 **/*.tar.gz
 **/playground
 **/wandb
+**/tensorboard_log
+wait_queue.sh
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -58,8 +59,6 @@ nosetests.xml
 coverage.xml
 *,cover
 .hypothesis/
-pytest.ini
-output.txt
 
 # Translations
 *.mo
@@ -126,3 +125,25 @@ logs
 log
 outputs
 .history
+
+
+flash*
+test*
+
+.gitignore
+
+data*
+
+runs/
+
+validation*
+
+examples/wait_queue.sh
+checkpoints/
+*_debug.sh
+
+examples
+
+prepare*
+
+recipe
