@@ -161,8 +161,8 @@ class Tracking:
             self.logger["vemlp_wandb"].finish(exit_code=0)
         if "tensorboard" in self.logger:
             self.logger["tensorboard"].finish()
-        if "clearnml" in self.logger:
-            self.logger["clearnml"].finish()
+        if "clearml" in self.logger:
+            self.logger["clearml"].finish()
         if "trackio" in self.logger:
             self.logger["trackio"].finish()
         if "file" in self.logger:
@@ -218,7 +218,7 @@ class ClearMLLogger:
                 )
 
     def finish(self):
-        self._task.mark_completed()
+        self._task.close()
 
 
 class FileLogger:
@@ -263,10 +263,34 @@ class _TensorboardAdapter:
 
 
 class _MlflowLoggingAdapter:
+    def __init__(self):
+        import logging
+        import re
+
+        self.logger = logging.getLogger(__name__)
+        # MLflow metric key validation logic:
+        # https://github.com/mlflow/mlflow/blob/master/mlflow/utils/validation.py#L157C12-L157C44
+        # Only characters allowed: slashes, alphanumerics, underscores, periods, dashes, colons,
+        # and spaces.
+        self._invalid_chars_pattern = re.compile(
+            r"[^/\w.\- :]"
+        )  # Allowed: slashes, alphanumerics, underscores, periods, dashes, colons, and spaces.
+
     def log(self, data, step):
         import mlflow
 
-        results = {k.replace("@", "_at_"): v for k, v in data.items()}
+        def sanitize_key(key):
+            # First replace @ with _at_ for backward compatibility
+            sanitized = key.replace("@", "_at_")
+            # Then replace any other invalid characters with _
+            sanitized = self._invalid_chars_pattern.sub("_", sanitized)
+            if sanitized != key:
+                self.logger.warning(
+                    "[MLflow] Metric key '%s' sanitized to '%s' due to invalid characters.", key, sanitized
+                )
+            return sanitized
+
+        results = {sanitize_key(k): v for k, v in data.items()}
         mlflow.log_metrics(metrics=results, step=step)
 
 
